@@ -21,10 +21,11 @@ if (score >= 5) {
           <button class="primary" data-action="start-today-drill">Starta dagens pass</button>
           <button class="secondary" data-action="jump-mock">Mockprov</button>
           <button class="secondary" data-action="start-priority-learn">Lär i prioriterat spår</button>
+          <button class="secondary" data-action="open-python-course">Python-kurs</button>
         </div>
       </section>
 
-      <section class="card span-12">
+      <section class="card span-6">
         <details>
           <summary>Användare och progress</summary>
           <p class="muted">Byt user id för separat progress per person på samma app.</p>
@@ -38,7 +39,7 @@ if (score >= 5) {
         </details>
       </section>
 
-      <section class="card span-12">
+      <section class="card span-6">
         <details>
           <summary>2-min intervju (för personlig plan)</summary>
           <p class="muted">Flervalsfrågor med fritext för "Annat". Svaren styr rekommenderad träning i appen.</p>
@@ -71,7 +72,7 @@ if (score >= 5) {
         </details>
       </section>
 
-      <section class="card span-12">
+      <section class="card span-6">
         <details>
           <summary>Visa dagens plan (${t.blocks.length} block)</summary>
           <p class="muted">${t.title}</p>
@@ -83,7 +84,7 @@ if (score >= 5) {
         </details>
       </section>
 
-      <section class="card span-12">
+      <section class="card span-6">
         <details>
           <summary>Visa progression</summary>
           <p><span class="track-pill track-nackademin_ux">UX</span> ${i.nackademin_ux}%</p>
@@ -97,7 +98,7 @@ if (score >= 5) {
         </details>
       </section>
 
-      <section class="card span-12">
+      <section class="card span-6">
         <details>
           <summary>Visa provdetaljer och backup</summary>
           <p><strong>Första provdatum:</strong> ${a}</p>

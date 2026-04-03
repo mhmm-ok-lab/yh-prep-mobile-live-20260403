@@ -45,22 +45,49 @@ body{font-family:"Space Grotesk",system-ui,-apple-system,sans-serif;background:v
 #switchbar{
   position:fixed;top:0;left:0;right:0;height:var(--switch-h);
   background:var(--bg2);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:6px;padding:0 10px;z-index:60;overflow-x:auto
+  display:flex;align-items:center;gap:6px;padding:0 10px;z-index:60
+}
+.sw-menu{
+  position:relative;
+  z-index:70;
+}
+.sw-menu>summary{
+  list-style:none;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;
+  height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--acc);
+  background:var(--acc-l);color:var(--acc);font-size:12px;font-weight:700
+}
+.sw-menu>summary::-webkit-details-marker{display:none}
+.sw-menu>summary::after{content:"▼";margin-left:6px;font-size:10px}
+.sw-menu[open]>summary::after{content:"▲"}
+.sw-menu-body{
+  position:absolute;left:0;top:calc(100% + 6px);
+  min-width:200px;padding:8px;
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  box-shadow:0 10px 22px rgb(15 23 42 / .14);
+  display:grid;gap:6px;z-index:120
 }
 .sw-link{
-  display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;
-  height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);
+  display:inline-flex;align-items:center;justify-content:flex-start;white-space:nowrap;
+  min-height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--border);
   background:var(--bg);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none
 }
 .sw-link:hover{background:var(--bg3);color:var(--text)}
-.sw-link.primary{background:var(--acc-l);color:var(--acc);border-color:var(--acc)}
+.sw-link.current{background:var(--acc-l);color:var(--acc);border-color:var(--acc);font-weight:700}
 .sw-user{
   margin-left:auto;
-  width:24px;height:24px;border-radius:999px;
+  width:30px;height:30px;border-radius:999px;
   border:1px solid var(--acc);background:var(--acc-l);color:var(--acc);
-  font-size:11px;font-weight:700;line-height:1;
+  font-size:11px;font-weight:700;line-height:1;position:relative;
   display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;flex-shrink:0
+}
+.sw-user-icon{font-size:14px;line-height:1}
+.sw-user-initial{
+  position:absolute;right:-2px;bottom:-2px;
+  min-width:13px;height:13px;border-radius:999px;
+  border:1px solid var(--border);background:var(--bg);color:var(--text);
+  font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 2px
 }
 .sw-user:hover{filter:brightness(0.97)}
 
@@ -326,17 +353,30 @@ pre code{background:none;padding:0;font-size:inherit;color:inherit}
   .dot{width:20px;height:20px;font-size:9px}
   .opt{font-size:13px}
   #switchbar{padding:0 8px;gap:5px}
-  .sw-link{height:24px;padding:0 8px;font-size:11px}
-  .sw-user{width:22px;height:22px;font-size:10px}
+  .sw-menu>summary{height:24px;padding:0 8px;font-size:11px}
+  .sw-menu-body{min-width:180px}
+  .sw-link{min-height:26px;padding:0 8px;font-size:11px}
+  .sw-user{width:24px;height:24px}
+  .sw-user-icon{font-size:11px}
+  .sw-user-initial{min-width:11px;height:11px;font-size:7px}
 }
 </style>
 </head>
 <body>
 <div id="switchbar">
-  <a class="sw-link primary" href="./?view=overview">Till YH Prep</a>
-  <a class="sw-link" href="./?view=bank&track=prog1a">Prog-frågebank</a>
-  <a class="sw-link" href="./?view=mock">Mockprov</a>
-  <button id="user-avatar" class="sw-user" title="Byt användare">G</button>
+  <details class="sw-menu">
+    <summary>Läge: Python</summary>
+    <div class="sw-menu-body">
+      <a class="sw-link" href="./?view=overview">YH Prep: Översikt</a>
+      <a class="sw-link" href="./?view=bank&track=prog1a">YH Prep: Frågebank (Prog)</a>
+      <a class="sw-link" href="./?view=mock">YH Prep: Mockprov</a>
+      <a class="sw-link current" href="./python-minikurs.html">Python-minikurs</a>
+    </div>
+  </details>
+  <button id="user-avatar" class="sw-user" title="Byt användare">
+    <span class="sw-user-icon" aria-hidden="true">👤</span>
+    <span id="sw-user-initial" class="sw-user-initial">G</span>
+  </button>
 </div>
 <div id="app">
   <nav id="sidebar"></nav>
@@ -1648,9 +1688,10 @@ function userBadge(userId) {
 
 function renderUserAvatar() {
   const btn = document.getElementById('user-avatar');
+  const initial = document.getElementById('sw-user-initial');
   if (!btn) return;
   const userId = getCurrentUserId();
-  btn.textContent = userBadge(userId);
+  if (initial) initial.textContent = userBadge(userId);
   btn.title = `Användare: ${userId}. Klicka för att byta.`;
 }
 

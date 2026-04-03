@@ -1,10 +1,12 @@
-const CACHE_NAME = "yh-prep-cache-v1";
+const CACHE_NAME = "yh-prep-cache-v2";
+const BASE_PATH = new URL(self.registration.scope).pathname;
+const APP_BASE = BASE_PATH.endsWith("/") ? BASE_PATH : `${BASE_PATH}/`;
 const STATIC_ASSETS = [
-  "/",
-  "/index.html",
-  "/manifest.webmanifest",
-  "/icons/icon-192.svg",
-  "/icons/icon-512.svg"
+  APP_BASE,
+  `${APP_BASE}index.html`,
+  `${APP_BASE}manifest.webmanifest`,
+  `${APP_BASE}icons/icon-192.svg`,
+  `${APP_BASE}icons/icon-512.svg`
 ];
 
 self.addEventListener("install", (event) => {
@@ -39,13 +41,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
-
-      return fetch(request)
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
         .then((response) => {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -53,7 +51,23 @@ self.addEventListener("fetch", (event) => {
           });
           return response;
         })
-        .catch(() => caches.match("/index.html"));
+        .catch(() => caches.match(request).then((cached) => cached || caches.match(`${APP_BASE}index.html`)))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(request).then((response) => {
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(request, responseClone).catch(() => undefined);
+        });
+        return response;
+      });
     })
   );
 });

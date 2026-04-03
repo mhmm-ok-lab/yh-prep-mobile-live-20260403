@@ -53,6 +53,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 }
 .sw-link:hover{background:var(--bg3);color:var(--text)}
 .sw-link.primary{background:var(--acc-l);color:var(--acc);border-color:var(--acc)}
+.sw-user{
+  margin-left:auto;
+  width:24px;height:24px;border-radius:999px;
+  border:1px solid var(--acc);background:var(--acc-l);color:var(--acc);
+  font-size:11px;font-weight:700;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0
+}
+.sw-user:hover{filter:brightness(0.97)}
 
 /* ── Sidebar ── */
 #sidebar{
@@ -317,6 +326,7 @@ pre code{background:none;padding:0;font-size:inherit;color:inherit}
   .opt{font-size:13px}
   #switchbar{padding:0 8px;gap:5px}
   .sw-link{height:24px;padding:0 8px;font-size:11px}
+  .sw-user{width:22px;height:22px;font-size:10px}
 }
 </style>
 </head>
@@ -325,6 +335,7 @@ pre code{background:none;padding:0;font-size:inherit;color:inherit}
   <a class="sw-link primary" href="./?view=overview">Till YH Prep</a>
   <a class="sw-link" href="./?view=bank&track=prog1a">Prog-frågebank</a>
   <a class="sw-link" href="./?view=mock">Mockprov</a>
+  <button id="user-avatar" class="sw-user" title="Byt användare">G</button>
 </div>
 <div id="app">
   <nav id="sidebar"></nav>
@@ -1610,6 +1621,52 @@ print(lst[5])  # IndexError!</code></pre>
 ]; // end SECTIONS
 
 // ================================================================
+// USER CONTEXT (shared with YH Prep app)
+// ================================================================
+const USER_KEY = 'yh.current-user-id';
+
+function sanitizeUserId(value) {
+  const safe = String(value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  return safe || 'gäst';
+}
+
+function getCurrentUserId() {
+  const stored = localStorage.getItem(USER_KEY) || 'gäst';
+  const normalized = sanitizeUserId(stored);
+  localStorage.setItem(USER_KEY, normalized);
+  return normalized;
+}
+
+function userBadge(userId) {
+  const normalized = sanitizeUserId(userId);
+  if (normalized === 'gäst') return 'G';
+  const parts = normalized.split(/[-_]+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return normalized.slice(0, 2).toUpperCase() || 'G';
+}
+
+function renderUserAvatar() {
+  const btn = document.getElementById('user-avatar');
+  if (!btn) return;
+  const userId = getCurrentUserId();
+  btn.textContent = userBadge(userId);
+  btn.title = `Användare: ${userId}. Klicka för att byta.`;
+}
+
+function initUserAvatarSwitch() {
+  const btn = document.getElementById('user-avatar');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const current = getCurrentUserId();
+    const input = window.prompt('Byt user id (tomt = gäst):', current === 'gäst' ? '' : current);
+    if (input === null) return;
+    const nextUser = sanitizeUserId(input || 'gäst');
+    localStorage.setItem(USER_KEY, nextUser);
+    renderUserAvatar();
+  });
+}
+
+// ================================================================
 // APP STATE
 // ================================================================
 let curSec = 0;
@@ -1972,6 +2029,8 @@ function initRangeLab() {
 // ================================================================
 // INIT
 // ================================================================
+renderUserAvatar();
+initUserAvatarSwitch();
 SECTIONS.forEach(initSecState);
 renderNav();
 renderMain();
